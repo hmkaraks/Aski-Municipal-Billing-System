@@ -1,3 +1,4 @@
+<img width="205" height="205" alt="aski-logo-project" src="https://github.com/user-attachments/assets/b896a002-f8bf-4930-8674-3d077e619e43" />
 <div align="center">
 
 <img width="180" alt="ASKI Logo" src="https://github.com/user-attachments/assets/7d5b0e07-ad7e-48cf-a7d4-1841d8e11566" style="margin-bottom: 20px;">
