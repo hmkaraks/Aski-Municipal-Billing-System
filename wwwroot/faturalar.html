@@ -1,0 +1,414 @@
+﻿<!DOCTYPE html>
+<!-- HTML5 standartlarına uygun, Türkçe dil destekli sayfa iskeletimiz -->
+<html lang="tr">
+<head>
+    <!-- Türkçe karakterlerin (ş, ğ, ç, ö) bozuk çıkmaması için UTF-8 kodlaması -->
+    <meta charset="UTF-8">
+    <!-- Sayfanın tüm cihazlarda (mobil, tablet, PC) düzgün ölçeklenmesi için viewport ayarı -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Tarayıcı sekmesinde görünen başlığımız -->
+    <title>ASKİ Fatura - Tahakkuk Yönetimi</title>
+
+    <!-- 
+        1. HARİCİ KÜTÜPHANELER
+        Bootstrap CSS: Tasarım, butonlar, modallar ve kartlar için hazır CSS sınıfları sunar.
+        Bootstrap Icons: Ekranda gördüğün o su damlası, adam, sayaç gibi ikonları sağlar.
+    -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        /* ==========================================================
+           2. ÖZEL TASARIM KODLARI (CSS)
+           ========================================================== */
+
+        /* GENEL SAYFA (BODY) AYARLARI */
+        /* overflow-x: hidden ile yatayda gereksiz kaydırmaları engelliyoruz. position: relative ile logoyu sınırlandırıyoruz. */
+        body { background-color: #f8f9fa; overflow-x: hidden; position: relative; }
+
+        /* ARKA PLAN SİLİK LOGO (WATERMARK) EFEKTİ */
+        /* Sayfanın arka planına devasa ama çok silik, kurumsal bir logo gömüyoruz. */
+        body::before {
+            content: ""; /* Sadece arka plan resmi taşıyacağı için içi boş */
+            position: fixed; /* Ekran kaydırılsa bile logo sayfada sabit kalır */
+            top: 0; left: 0; /* Ekranın sol üst köşesinden başlar */
+            width: 100vw; height: 100vh; /* Ekranın %100 genişlik ve yüksekliğini kaplar */
+            background-image: url('askilogo.png'); /* wwwroot içindeki kendi logomuz! */
+            background-repeat: no-repeat; /* Logonun yan yana çoğalmasını (fayans gibi) engeller */
+            background-position: center; /* Logoyu ekranın tam ortasına hizalar */
+            background-size: 500px; /* Logonun ekrandaki büyüklüğü (genişliği) */
+            opacity: 0.04; /* %4 opaklık. Neredeyse şeffaf, yazıları asla engellemez. */
+            z-index: -1; /* -1 değeri ile her şeyin (tablolar, kartlar) en altında kalmasını sağlarız */
+            pointer-events: none; /* Logonun tıklamaları engellemesini, fare olaylarını bozmasını önler */
+        }
+
+        /* SOL YAN MENÜ (SIDEBAR) TASARIMI */
+        #sidebar {
+            min-width: 280px; max-width: 280px; /* Menünün genişliğini sabitliyoruz */
+            min-height: 100vh; /* Menünün yüksekliği ekranın en altından en üstüne kadar uzanır */
+            background-color: #212529; /* Koyu antrasit arka plan */
+            color: white; /* Yazılar beyaz */
+            transition: all 0.3s; /* Menü üzerindeki hareketlerde yumuşak geçiş animasyonu */
+        }
+
+        /* Yan Menüdeki Linkler (Menü Butonları) */
+        #sidebar .nav-link {
+            color: #adb5bd; /* Tıklanmamış linklerin rengi gri */
+            padding: 12px 20px; /* İç boşluklar */
+            border-radius: 8px; /* Buton köşelerini yuvarlatır */
+            margin: 4px 15px; /* Dış boşluklar */
+            font-weight: 500; /* Yazı kalınlığı */
+        }
+
+        /* Yan Menüdeki Linklerin Üzerine Gelindiğinde (hover) veya Aktif Olduğunda (active) */
+        #sidebar .nav-link:hover, #sidebar .nav-link.active {
+            background-color: #0d6efd; /* Aktif olan sayfa parlak mavi yanar */
+            color: white; /* Yazısı tam beyaz olur */
+        }
+
+        /* Menü İçindeki İkonların Ayarı */
+        #sidebar .nav-link i { margin-right: 10px; font-size: 1.1rem; }
+
+        /* SAĞ ANA İÇERİK ALANI (Tablonun olduğu yer) */
+        #content { width: 100%; } /* Menüden kalan tüm ekran genişliğini kaplar */
+
+        /* Üst Menü Çubuğu (Topbar) Tasarımı */
+        .topbar { background-color: white; box-shadow: 0 2px 10px rgba(0,0,0,0.05); } /* Altına çok hafif, zarif bir gölge verir */
+    </style>
+</head>
+<body class="d-flex"> <!-- d-flex ile sol menü ve sağ içerik yan yana dizilir -->
+
+<!-- ==========================================
+     3. SOL YAN MENÜ (SIDEBAR) 
+     Sayfalar arası geçişi sağlayan ana iskeletimiz.
+     ========================================== -->
+<nav id="sidebar" class="d-flex flex-column shadow">
+
+    <!-- LOGO VE BAŞLIK KISMI -->
+    <div class="p-4 text-center border-bottom border-secondary mb-3">
+        <!-- v1.0.0 yazısı ve eski ikon kaldırıldı, yerine profesyonel ASKİ logomuz yerleştirildi! -->
+        <img src="askilogo.png" alt="ASKİ Logo" style="width: 85px; height: auto;" class="mb-2">
+        <h5 class="mt-2 fw-bold text-white">ASKİ Yönetim</h5>
+    </div>
+
+    <!-- MENÜ LİNKLERİ (Sayfalar) -->
+    <ul class="nav flex-column mb-auto">
+        <li class="nav-item"><a href="dashboard.html" class="nav-link"><i class="bi bi-grid-1x2-fill"></i> Ana Panel</a></li>
+        <li class="nav-item"><a href="aboneler.html" class="nav-link"><i class="bi bi-people-fill"></i> Abone İşlemleri</a></li>
+        <li class="nav-item"><a href="sayaclar.html" class="nav-link"><i class="bi bi-speedometer"></i> Sayaç Yönetimi</a></li>
+        <!-- DİKKAT: Biz şu an Faturalar (Tahakkuk) sayfasında olduğumuz için bu a etiketinde "active" class'ı var (Mavi). -->
+        <li class="nav-item"><a href="faturalar.html" class="nav-link active"><i class="bi bi-receipt"></i> Fatura & Tahakkuk</a></li>
+    </ul>
+
+    <!-- ÇIKIŞ YAP BUTONU -->
+    <!-- mt-auto sınıfı, yukarıdaki linkleri yukarıya iter ve bu div'i en aşağıya yapıştırır -->
+    <div class="p-3 mt-auto border-top border-secondary">
+        <a href="index.html" class="nav-link text-danger"> <!-- text-danger: Yazıyı kırmızı yapar -->
+            <i class="bi bi-box-arrow-left"></i> Çıkış Yap
+        </a>
+    </div>
+</nav>
+
+<!-- ==========================================
+     4. SAĞ ANA İÇERİK BÖLÜMÜ 
+     Tablonun ve Butonların bulunduğu ana çerçeve
+     ========================================== -->
+<div id="content">
+
+    <!-- ÜST BAR VE FATURA KES BUTONU (Topbar) -->
+    <div class="topbar p-3 d-flex justify-content-between align-items-center mb-4">
+        <h4 class="m-0 fw-bold text-secondary">Fatura (Tahakkuk) İşlemleri</h4>
+        <div class="d-flex align-items-center">
+
+            <!-- YENİ FATURA KES BUTONU -->
+            <!-- 
+                onclick="sayacDropdownDoldur()": Butona basıldığı an JavaScript'e "Sayacları API'den Çek" emri verir.
+                data-bs-toggle="modal" & data-bs-target: Bootstrap'a "Aşağıdaki #faturaKesModal ID'li gizli pencereyi aç" der.
+            -->
+            <button class="btn btn-warning text-dark fw-bold shadow-sm" onclick="sayacDropdownDoldur()" data-bs-toggle="modal" data-bs-target="#faturaKesModal">
+                <i class="bi bi-calculator-fill me-1"></i> Yeni Fatura Kes
+            </button>
+        </div>
+    </div>
+
+    <!-- ANA TABLO YAPISI (Faturaların Listelendiği Yer) -->
+    <!-- px-4: Sağdan ve soldan boşluk bırakır -->
+    <div class="container-fluid px-4">
+        <div class="card border-0 shadow-sm rounded-3">
+
+            <!-- Tablonun Başlığı -->
+            <div class="card-header bg-white py-3">
+                <h6 class="mb-0 fw-bold text-warning text-dark"><i class="bi bi-receipt-cutoff me-2"></i>Kesilmiş Tüm Faturalar</h6>
+            </div>
+
+            <div class="card-body p-0">
+                <div class="table-responsive"> <!-- Tablo ekranı aşarsa kaydırma çubuğu çıkarır -->
+                    <!-- table-hover: Fareyle üzerine gelinen satırı hafif parlatır -->
+                    <table class="table table-hover align-middle mb-0">
+
+                        <!-- TABLO BAŞLIK SÜTUNLARI (Thead) -->
+                        <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">Fatura No</th>
+                            <th>Dönem</th>
+                            <th>Abone & Sayaç</th>
+                            <th>Tüketim (m³)</th>
+                            <th>Ödenecek Tutar</th>
+                            <th>Son Ödeme</th>
+                            <th>Durum</th>
+                        </tr>
+                        </thead>
+
+                        <!-- 
+                            TABLO İÇERİĞİ (Tbody)
+                            ID="faturaTableBody": JavaScript burayı yakalayacak 
+                            ve C# API'sinden gelen JSON verilerini tablo satırlarına (<tr>) dönüştürüp buraya basacak.
+                        -->
+                        <tbody id="faturaTableBody">
+                        <tr><td colspan="7" class="text-center py-4 text-muted">Faturalar yükleniyor...</td></tr>
+                        </tbody>
+
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==========================================
+     5. FATURA KESME MODALI (GİZLİ POPUP PENCERE)
+     Kullanıcı 'Yeni Fatura Kes' dediğinde ekranı karartıp öne çıkan form alanıdır.
+     ========================================== -->
+<div class="modal fade" id="faturaKesModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered"> <!-- Pencereyi ekranın ortasına sabitler -->
+        <div class="modal-content border-0 shadow">
+
+            <!-- MODAL BAŞLIĞI -->
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title fw-bold"><i class="bi bi-calculator me-2"></i>Fatura Tahakkuk Ekranı</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> <!-- Çarpı (Kapatma) Butonu -->
+            </div>
+
+            <!-- FORM BAŞLANGICI: Kullanıcının gireceği değerler burada toplanır -->
+            <form id="formFaturaKes">
+                <div class="modal-body p-4">
+
+                    <!-- SAYAÇ SEÇİMİ (Dropdown) -->
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-secondary">Fatura Kesilecek Sayaç *</label>
+                        <!-- Abonelerin ve Sayaçların listeleneceği Seçim Kutusu. JS bunu fetch() ile dolduracak. -->
+                        <select class="form-select border-warning" id="sayacId" required>
+                            <option value="">Sistemden Sayaç Seçiniz...</option>
+                        </select>
+                    </div>
+
+                    <!-- DÖNEM VE TARİH (Yan yana) -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold text-secondary">Fatura Dönemi *</label>
+                            <!-- Fatura dönemi için metin kutusu (Örn: 2026-09) -->
+                            <input type="text" class="form-control" id="faturaDonemi" required placeholder="Örn: 2026-09">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold text-secondary">Son Ödeme Tarihi *</label>
+                            <!-- type="date" tarayıcının takvimini açtırır -->
+                            <input type="date" class="form-control" id="sonOdemeTarihi" required>
+                        </div>
+                    </div>
+
+                    <!-- OKUMA DEĞERLERİ (Yan Yana) -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold text-secondary">İlk Okuma Değeri *</label>
+                            <!-- "step=0.01" ondalıklı (küsuratlı) su metreküpü girmeye izin verir -->
+                            <input type="number" step="0.01" class="form-control" id="ilkOkuma" required placeholder="0.00">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold text-secondary">Son Okuma Değeri *</label>
+                            <!-- text-danger fw-bold: Son okuma önemli olduğu için kırmızı ve kalın yazdık -->
+                            <input type="number" step="0.01" class="form-control text-danger fw-bold" id="sonOkuma" required placeholder="0.00">
+                        </div>
+                    </div>
+
+                    <!-- BİLGİ NOTU (Çok Önemli Güvenlik Detayı): 
+                         Gördüğün gibi formda "Fatura Tutarı" veya "Tüketim Miktarı" sormuyoruz! 
+                         Çünkü güvenli yazılımda (kötü niyetli kişilerin hacklemesine karşı) parayı müşteri/arayüz belirlemez, BACKEND (C#) belirler! 
+                         Biz sadece ilk ve son okumayı yolluyoruz. Gerisini C# halledecek. -->
+
+                </div>
+
+                <!-- FORM ALT BUTONLARI -->
+                <div class="modal-footer bg-light">
+                    <!-- İptal formu göndermez, sadece ekranı kapatır -->
+                    <button type="button" class="btn btn-secondary fw-semibold" data-bs-dismiss="modal">İptal</button>
+                    <!-- Gönder (Submit) butonu JS'yi tetikler -->
+                    <button type="submit" class="btn btn-warning fw-bold text-dark" id="btnKaydet">
+                        <i class="bi bi-printer me-1"></i> Kes ve Kaydet
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap Animasyon ve JS kütüphanesi -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- ==========================================
+     6. JAVASCRIPT & API ENTEGRASYONU 
+     Tarayıcı (HTML) ile Sunucunun (C# / PostgreSQL) haberleştiği sinir merkezi.
+     ========================================== -->
+<script>
+    /*
+     * FONKSİYON 1: FATURALARI GETİR (GET ISTEĞİ)
+     * C# TahakkukController.cs'deki [HttpGet] metoduna istek atar.
+     * Hatırlarsan C# tarafında '.Include(t => t.Sayac).ThenInclude(s => s.Abone)' yazmıştık.
+     * İşte o harika komut sayesinde burada tek bir 'f' JSON nesnesinin içinden hem sayacın seri nosuna hem de abonenin ismine tek bir atışla ulaşabiliyoruz!
+     */
+    async function faturalariGetir() {
+        try {
+            // Backend'e "Bana faturaları ver" diyoruz (GET).
+            const response = await fetch('/api/Tahakkuk');
+            const faturalar = await response.json();
+
+            // HTML'deki tablonun gövdesini (tbody) yakalıyoruz
+            let tbody = document.getElementById('faturaTableBody');
+            tbody.innerHTML = ''; // Eski "yükleniyor..." yazısını siliyoruz
+
+            // Sistemde hiç fatura yoksa:
+            if(faturalar.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center py-4 text-muted">Henüz kesilmiş bir fatura yok.</td></tr>';
+                return;
+            }
+
+            // Gelen her bir fatura (f) için tabloya bir Satır (<tr>) ekliyoruz.
+            faturalar.forEach(f => {
+                // Abone bilgisi null gelebilir (veritabanı silme kuralları vs.), sistemi çökertmemek için ternary (if/else) kontrolü yapıyoruz.
+                let aboneAd = (f.sayac && f.sayac.abone) ? `${f.sayac.abone.ad} ${f.sayac.abone.soyad}` : 'Abone Bulunamadı';
+                let seriNo = f.sayac ? f.sayac.sayacSeriNo : '-';
+
+                // Fatura ödendi mi? 'true' ise yeşil, 'false' ise kırmızı görsel etiket (badge) oluştur.
+                let durumBadge = f.odendiMi
+                    ? '<span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Ödendi</span>'
+                    : '<span class="badge bg-danger"><i class="bi bi-x-circle me-1"></i>Ödenmedi</span>';
+
+                // Tarihi (Örn: 2026-09-20T00:00) Türkiye standart görünümüne (Gün/Ay/Yıl) çevirme
+                let tarih = new Date(f.sonOdemeTarihi).toLocaleDateString('tr-TR');
+
+                // Tablonun içine HTML olarak satırı basıyoruz! (Gördüğün gibi C# parayı hesaplamış, f.faturaTutari olarak bize göndermiş bile!)
+                tbody.innerHTML += `
+                        <tr>
+                            <td class="ps-4 fw-bold text-secondary">#${f.id}</td>
+                            <td><span class="badge bg-light text-dark border">${f.faturaDonemi}</span></td>
+                            <td>
+                                <div class="fw-semibold text-primary">${aboneAd}</div>
+                                <div class="small text-muted">Sayaç: ${seriNo}</div>
+                            </td>
+                            <td><span class="fw-bold">${f.tuketimMiktari}</span> <small class="text-muted">m³</small></td>
+                            <td class="fw-bold text-success fs-5">${f.faturaTutari} ₺</td>
+                            <td><small class="text-danger fw-semibold">${tarih}</small></td>
+                            <td>${durumBadge}</td>
+                        </tr>
+                    `;
+            });
+        } catch (error) {
+            console.error("Faturalar çekilirken hata:", error);
+        }
+    }
+
+    /*
+     * FONKSİYON 2: SAYAÇLARI DROPDOWN'A (AÇILIR KUTUYA) DOLDUR
+     * Fatura keserken "Hangi sayaca keseceğiz?" sorusunun cevabını vermek için 
+     * Sistemdeki tüm sayaçları (ve sahiplerini) API'den çekip formdaki select kutusuna ekler.
+     */
+    async function sayacDropdownDoldur() {
+        try {
+            const response = await fetch('/api/Sayac');
+            const sayaclar = await response.json();
+
+            let dropdown = document.getElementById('sayacId');
+            dropdown.innerHTML = '<option value="">Sistemden Sayaç Seçiniz...</option>'; // Önceki tıklamadan kalanları temizle
+
+            sayaclar.forEach(s => {
+                let aboneAd = s.abone ? `${s.abone.ad} ${s.abone.soyad}` : 'Sahipsiz';
+                // Arka planda formla birlikte API'ye "s.id" (Örn: 1, 2, 3) gidecek, ekranda ise adamın ismi ve sayaç no görünecek.
+                dropdown.innerHTML += `<option value="${s.id}">${s.sayacSeriNo} (Abone: ${aboneAd})</option>`;
+            });
+
+        } catch (error) {
+            console.error("Sayaçlar çekilemedi:", error);
+        }
+    }
+
+    // Sayfa açıldığında otomatik olarak tüm faturaları getirip tabloyu doldurması için çağırıyoruz.
+    faturalariGetir();
+
+    /*
+     * FONKSİYON 3: FORMU GÖNDERME (POST ISTEĞİ)
+     * Kullanıcı formdaki bilgileri doldurup "Kes ve Kaydet" butonuna (submit) bastığında çalışır.
+     */
+    document.getElementById('formFaturaKes').addEventListener('submit', async function(e) {
+        e.preventDefault(); // Sayfanın yenilenmesini, formun standart (eski tip) davranışını iptal eder! (Modern SPA yapısı)
+
+        const btnKaydet = document.getElementById('btnKaydet');
+        btnKaydet.disabled = true; // Kullanıcı art arda tıklayıp aynı faturayı 5 kere kesmesin diye butonu kilitliyoruz.
+        btnKaydet.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Hesaplanıyor...';
+
+        // HTML Formundan girilen verileri çekip JavaScript JSON Objesi yapıyoruz.
+        const yeniTahakkuk = {
+            sayacId: parseInt(document.getElementById('sayacId').value), // Metin olarak alınan id'yi tamsayıya (int) çeviririz.
+            faturaDonemi: document.getElementById('faturaDonemi').value,
+
+            // ÇOK ÖNEMLİ FORMAT DÜZELTMESİ: .toISOString() eklenerek tarih formatı C# DateTime modeline tam uyumlu (Uluslararası standart) hale getirildi.
+            sonOdemeTarihi: new Date(document.getElementById('sonOdemeTarihi').value).toISOString(),
+
+            // parseFloat: Kutuya yazılan '150.5' gibi metin formatındaki küsuratlı girdiyi matematiksel ondalık (float/double) sayıya çevirir.
+            ilkOkumaDegeri: parseFloat(document.getElementById('ilkOkuma').value),
+            sonOkumaDegeri: parseFloat(document.getElementById('sonOkuma').value),
+
+            odendiMi: false // Fatura ilk kesildiğinde doğası gereği her zaman ödenmemiştir (false).
+        };
+
+        /*
+         * İŞTE SİSTEMİN GÜVENLİK VE MANTIK KALBİ:
+         * Biz JavaScript tarafında "Son Okuma - İlk Okuma" yapıp TüketimMiktari veya FaturaTutari HESAPLAMIYORUZ!
+         * Sadece saf okuma değerlerini API'ye (C#) yolluyoruz. 
+         * C# TahakkukController.cs o değerleri teslim alacak, birbirinden çıkaracak, veritabanındaki 25 TL (su birim fiyatı) ile çarpacak,
+         * güvenli bir şekilde hesaplayıp PostgreSQL'e o şekilde yazacak.
+         */
+        try {
+            // Fetch ile Backend'imize (C#) POST isteği (Veri Ekleme) atıyoruz.
+            const response = await fetch('/api/Tahakkuk', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(yeniTahakkuk) // JS nesnesini HTTP protokolünden geçecek bir metne çeviriyoruz.
+            });
+
+            if (response.ok) {
+                // C# işlem başarılı (200 OK) cevabı dönerse:
+
+                // 1. Ekranda açık kalan Modalı (Popup) gizle
+                const modal = bootstrap.Modal.getInstance(document.getElementById('faturaKesModal'));
+                modal.hide();
+
+                // 2. Formu temizle (Kutuların içindeki yazıları boşalt ki bir sonraki işlem temiz başlasın)
+                document.getElementById('formFaturaKes').reset();
+
+                // 3. Tabloyu yeniden yükle ki hesaplanmış faturayı (Hesaplanmış parasıyla birlikte!) listede anında görebilelim.
+                faturalariGetir();
+            } else {
+                // C# 400 Bad Request dönerse (Örn: Son okuma, ilk okumadan küçük olamaz kuralına takıldıysa)
+                alert("Hesaplama sırasında hata oluştu. Değerleri kontrol edin (Son Okuma, İlk Okumadan büyük olmalıdır!).");
+            }
+        } catch (error) {
+            alert("Sunucuya bağlanılamadı. API ayakta mı?");
+        } finally {
+            // Hata da olsa, başarılı da olsa Butonu eski haline (tıklanabilir) getir. Kilidi kaldır.
+            btnKaydet.disabled = false;
+            btnKaydet.innerHTML = '<i class="bi bi-printer me-1"></i> Kes ve Kaydet';
+        }
+    });
+</script>
+</body>
+</html>

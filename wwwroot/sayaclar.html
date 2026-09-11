@@ -1,0 +1,397 @@
+﻿<!DOCTYPE html>
+<!-- HTML5 standardını kullandığımızı belirtir -->
+<html lang="tr">
+<head>
+    <!-- Karakter setini UTF-8 yaparak Türkçe karakterlerin düzgün görünmesini sağlarız -->
+    <meta charset="UTF-8">
+    <!-- Sayfanın tüm cihazlarda (mobil, tablet, PC) düzgün ölçeklenmesini sağlar (Responsive) -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Tarayıcı sekmesinde görünecek başlık -->
+    <title>ASKİ Fatura - Sayaç Yönetimi</title>
+
+    <!-- BOOTSTRAP 5 CSS: Hazır butonlar, modallar (açılır pencereler), kartlar ve grid sistemi için tasarım şablonu -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- BOOTSTRAP ICONS: Sayfada kullanılan vektörel ikonlar (sayaç, adam, artı işareti vb.) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        /* ==========================================================
+           ÖZEL CSS (TASARIM) KODLARIMIZ
+           ========================================================== */
+
+        /* GENEL SAYFA (BODY) AYARLARI */
+        /* overflow-x: hidden ile yatayda gereksiz kaydırmaları engelliyoruz. position: relative ile logoyu sınırlandırıyoruz. */
+        body { background-color: #f8f9fa; overflow-x: hidden; position: relative; }
+
+        /* ARKA PLAN SİLİK LOGO (WATERMARK) EFEKTİ */
+        /* Sayfanın arka planına devasa ama çok silik bir logo gömüyoruz. */
+        body::before {
+            content: ""; /* Resim koyacağımız için içi boş bırakılır */
+            position: fixed; /* Ekran kaydırılsa bile logo yerinde sabit kalır */
+            top: 0; left: 0; /* Ekranın sol üstünden başlatır */
+            width: 100vw; height: 100vh; /* Ekranın %100 genişlik ve yüksekliğini kaplar */
+            background-image: url('askilogo.png'); /* wwwroot içindeki kendi logomuz */
+            background-repeat: no-repeat; /* Logonun fayans gibi döşenmesini engeller */
+            background-position: center; /* Logoyu tam ortaya hizalar */
+            background-size: 500px; /* Logonun büyüklüğü */
+            opacity: 0.04; /* %4 opaklık. Neredeyse tamamen şeffaf, çok zarif görünür. */
+            z-index: -1; /* Tabloların ve butonların en altında kalmasını sağlar */
+            pointer-events: none; /* Üstüne tıklamayı engeller, altındaki butonlara basabilmemizi sağlar */
+        }
+
+        /* SOL YAN MENÜ (SIDEBAR) KUTUSU */
+        #sidebar {
+            min-width: 280px; max-width: 280px; /* Menü genişliğini sabitleriz */
+            min-height: 100vh; /* Sayfanın en altından en üstüne kadar uzanır */
+            background-color: #212529; /* Koyu antrasit arka plan */
+            color: white; /* Yazılar beyaz */
+            transition: all 0.3s; /* Animasyonlu yumuşak geçiş */
+        }
+
+        /* YAN MENÜDEKİ LİNKLER (Menü Butonları) */
+        #sidebar .nav-link {
+            color: #adb5bd; /* Tıklanmamış linklerin rengi gri */
+            padding: 12px 20px; /* İç boşluklar */
+            border-radius: 8px; /* Köşe yuvarlatma */
+            margin: 4px 15px; /* Dış boşluklar */
+            font-weight: 500; /* Kalınlık */
+        }
+
+        /* LİNKİN ÜZERİNE GELİNDİĞİNDE VEYA AKTİF OLDUĞUNDA (hover, active) */
+        #sidebar .nav-link:hover, #sidebar .nav-link.active {
+            background-color: #0d6efd; /* Parlak mavi arka plan */
+            color: white; /* Tam beyaz yazı */
+        }
+
+        /* MENÜ İKONLARI */
+        #sidebar .nav-link i { margin-right: 10px; font-size: 1.1rem; } /* İkon ve yazı arasına boşluk */
+
+        /* SAĞ TARAFTAKİ ANA İÇERİK ALANI */
+        #content { width: 100%; } /* Geri kalan ekran genişliğini tamamen kaplar */
+
+        /* ÜST BİLGİ ÇUBUĞU (Topbar) */
+        .topbar { background-color: white; box-shadow: 0 2px 10px rgba(0,0,0,0.05); } /* Altına 3 boyutlu his veren hafif gölge */
+    </style>
+</head>
+<!-- flex yapısı menüyü ve içeriği yan yana dizer -->
+<body class="d-flex">
+
+<!-- ==========================================
+     1. SOL YAN MENÜ (SIDEBAR) BÖLÜMÜ
+     ========================================== -->
+<nav id="sidebar" class="d-flex flex-column shadow">
+
+    <!-- LOGO VE BAŞLIK KISMI -->
+    <div class="p-4 text-center border-bottom border-secondary mb-3">
+        <!-- İŞTE BURADA v1.0.0 YAZISI SİLİNDİ VE LOGO EKLENDİ! -->
+        <img src="askilogo.png" alt="ASKİ Logo" style="width: 85px; height: auto;" class="mb-2">
+        <h5 class="mt-2 fw-bold text-white">ASKİ Yönetim</h5>
+    </div>
+
+    <!-- MENÜ LİNKLERİ (LİSTE) -->
+    <ul class="nav flex-column mb-auto">
+        <li class="nav-item">
+            <a href="dashboard.html" class="nav-link">
+                <i class="bi bi-grid-1x2-fill"></i> Ana Panel
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="aboneler.html" class="nav-link">
+                <i class="bi bi-people-fill"></i> Abone İşlemleri
+            </a>
+        </li>
+        <li class="nav-item">
+            <!-- DİKKAT: Biz şu an Sayaç Yönetimi sayfasında olduğumuz için bu a etiketinde "active" class'ı var (Mavi). -->
+            <a href="sayaclar.html" class="nav-link active">
+                <i class="bi bi-speedometer"></i> Sayaç Yönetimi
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="faturalar.html" class="nav-link">
+                <i class="bi bi-receipt"></i> Fatura & Tahakkuk
+            </a>
+        </li>
+    </ul>
+
+    <!-- ÇIKIŞ YAP BUTONU (En altta) -->
+    <div class="p-3 mt-auto border-top border-secondary">
+        <a href="index.html" class="nav-link text-danger">
+            <i class="bi bi-box-arrow-left"></i> Çıkış Yap
+        </a>
+    </div>
+</nav>
+
+<!-- ==========================================
+     2. SAĞ ANA İÇERİK (CONTENT) BÖLÜMÜ
+     ========================================== -->
+<div id="content">
+
+    <!-- ÜST BAR (Başlık ve Yeni Sayaç Ekle Butonu) -->
+    <div class="topbar p-3 d-flex justify-content-between align-items-center mb-4">
+        <h4 class="m-0 fw-bold text-secondary">Sayaç Yönetimi</h4>
+        <div class="d-flex align-items-center">
+
+            <!-- YENİ SAYAÇ EKLE BUTONU -->
+            <!-- 
+                onclick="aboneDropdownDoldur()": Butona tıklandığında ilk iş JS fonksiyonunu çağırır ve dropdown'u (açılır listeyi) abonelerle doldurur!
+                data-bs-toggle & target: Bootstrap'e "#sayacEkleModal" ID'li popup penceresini açmasını söyler. 
+            -->
+            <button class="btn btn-success fw-semibold shadow-sm" onclick="aboneDropdownDoldur()" data-bs-toggle="modal" data-bs-target="#sayacEkleModal">
+                <i class="bi bi-plus-circle me-1"></i> Yeni Sayaç Kaydet
+            </button>
+        </div>
+    </div>
+
+    <!-- SAYAÇ LİSTESİ TABLOSU -->
+    <div class="container-fluid px-4">
+        <!-- Beyaz kart çerçevesi -->
+        <div class="card border-0 shadow-sm rounded-3">
+
+            <!-- Kartın Başlığı -->
+            <div class="card-header bg-white py-3">
+                <h6 class="mb-0 fw-bold text-success"><i class="bi bi-speedometer2 me-2"></i>Sistemdeki Kayıtlı Sayaçlar</h6>
+            </div>
+
+            <!-- Kartın Gövdesi (Tablonun olduğu yer) -->
+            <div class="card-body p-0">
+                <div class="table-responsive"> <!-- Taşkınlıkları önler -->
+                    <table class="table table-hover align-middle mb-0">
+
+                        <!-- TABLO BAŞLIKLARI (Thead) -->
+                        <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">Sayaç ID</th>
+                            <th>Seri No</th>
+                            <th>Sayaç Tipi</th>
+                            <th>Bağlı Abone (Sahibi)</th>
+                            <th>Kurulum Tarihi</th>
+                        </tr>
+                        </thead>
+
+                        <!-- TABLO İÇERİĞİ (Tbody) -->
+                        <!-- JS içindeki sayaclariGetir() fonksiyonu verileri buraya dolduracak. -->
+                        <tbody id="sayacTableBody">
+                        <tr><td colspan="5" class="text-center py-4 text-muted">Veriler yükleniyor...</td></tr>
+                        </tbody>
+
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==========================================
+     3. MODAL (GİZLİ POPUP EKRANI - YENİ SAYAÇ KAYDI)
+     ========================================== -->
+<div class="modal fade" id="sayacEkleModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered"> <!-- Ekranın tam ortasına getirir -->
+        <div class="modal-content border-0 shadow"> <!-- Kutu sınırları ve gölge -->
+
+            <!-- MODAL BAŞLIĞI -->
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title fw-bold"><i class="bi bi-speedometer me-2"></i>Yeni Sayaç Ekle</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <!-- FORM BAŞLANGICI: Submit (Gönder) olayı JS tarafından yakalanacak -->
+            <form id="formSayacEkle">
+                <div class="modal-body p-4">
+
+                    <!-- HATA MESAJI KUTUSU (Başlangıçta gizli) -->
+                    <div id="modalAlert" class="alert alert-danger d-none small" role="alert"></div>
+
+                    <!-- ABONE SEÇİM LİSTESİ (Dropdown) -->
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-secondary">Bağlanacak Abone (Zorunlu) *</label>
+                        <!-- ID çok önemli: 'aboneId'. JS, API'den çektiği aboneleri bu select'in içine <option> olarak ekleyecek! -->
+                        <select class="form-select border-success" id="aboneId" required>
+                            <option value="">Önce Abone Seçiniz...</option>
+                            <!-- Seçenekler JS ile buraya dolacak -->
+                        </select>
+                    </div>
+
+                    <!-- SAYAÇ SERİ NO & TİPİ (Yan Yana) -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold text-secondary">Sayaç Seri No *</label>
+                            <input type="text" class="form-control" id="sayacSeriNo" required placeholder="Örn: SYC-2026-X1">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold text-secondary">Sayaç Tipi *</label>
+                            <!-- Sabit seçenekli dropdown menü -->
+                            <select class="form-select" id="sayacTipi" required>
+                                <option value="Mekanik">Mekanik</option>
+                                <option value="Akıllı Kartlı">Akıllı Kartlı</option>
+                                <option value="Ön Ödemeli">Ön Ödemeli</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- KURULUM TARİHİ -->
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-secondary">Kurulum Tarihi *</label>
+                        <!-- type="date" özelliği tarayıcıda takvim seçici (Datepicker) açılmasını sağlar -->
+                        <input type="date" class="form-control" id="kurulumTarihi" required>
+                    </div>
+
+                </div>
+
+                <!-- FORM ALT BUTONLARI -->
+                <div class="modal-footer bg-light">
+                    <!-- İptal butonu formu göndermez, modalı kapatır -->
+                    <button type="button" class="btn btn-secondary fw-semibold" data-bs-dismiss="modal">İptal</button>
+                    <!-- type="submit" butonu form verilerini tetikler -->
+                    <button type="submit" class="btn btn-success fw-bold" id="btnKaydet">
+                        <i class="bi bi-save me-1"></i> Sayacı Kaydet
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ==========================================
+     4. JAVASCRIPT KÜTÜPHANELERİ VE KODLARI
+     ========================================== -->
+<!-- Bootstrap JS (Modalların çalışması için zorunlu) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    /*
+     * FONKSİYON 1: SAYAÇLARI GETİR (GET)
+     * Veritabanından tüm sayaçları (bağlı oldukları abonelerle birlikte) çeker.
+     */
+    async function sayaclariGetir() {
+        try {
+            // C# API'ye istek at. (Backend'de Include(s => s.Abone) kullandığımız için abone detayları da gelir)
+            const response = await fetch('/api/Sayac');
+            const sayaclar = await response.json();
+
+            let tbody = document.getElementById('sayacTableBody');
+            tbody.innerHTML = ''; // Yükleniyor yazısını sil
+
+            // Sayaç yoksa boş tablo mesajı ver.
+            if(sayaclar.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted">Sistemde hiç sayaç bulunmuyor.</td></tr>';
+                return;
+            }
+
+            // Gelen her sayaç için (s) döngü başlat
+            sayaclar.forEach(s => {
+                // Eğer sayacın bağlı olduğu bir abone (s.abone) varsa adını al, yoksa "Boşta" yaz. (Ternary Operator)
+                let aboneBilgisi = s.abone ? `${s.abone.ad} ${s.abone.soyad}` : '<span class="text-danger">Boşta / Abonesiz</span>';
+
+                // Gelen karmaşık veritabanı tarihini (örn: 2026-09-10T14:30) Türkiye standart gün.ay.yıl formatına çevir.
+                let tarih = new Date(s.kurulumTarihi).toLocaleDateString('tr-TR');
+
+                // HTML'i tablo gövdesine ekle
+                tbody.innerHTML += `
+                        <tr>
+                            <td class="ps-4 fw-bold text-secondary">#${s.id}</td>
+                            <td><span class="badge bg-success bg-opacity-10 text-success border border-success">${s.sayacSeriNo}</span></td>
+                            <td>${s.sayacTipi}</td>
+                            <td class="fw-semibold text-dark"><i class="bi bi-person-check me-1 text-success"></i> ${aboneBilgisi}</td>
+                            <td><small class="text-muted">${tarih}</small></td>
+                        </tr>
+                    `;
+            });
+        } catch (error) {
+            console.error("Sayaçlar çekilemedi:", error);
+        }
+    }
+
+    /*
+     * FONKSİYON 2: ABONE DROPDOWN'UNU DOLDUR (GET)
+     * Yeni Sayaç eklerken "Hangi aboneye bağlayalım?" sorusunu sormak için 
+     * abonelerin listesini çekip HTML formundaki <select> etiketine doldurur.
+     */
+    async function aboneDropdownDoldur() {
+        try {
+            // Abone listesini çek
+            const response = await fetch('/api/Abone');
+            const aboneler = await response.json();
+
+            let dropdown = document.getElementById('aboneId');
+
+            // Her tıklamada üst üste birikmesin diye önce içini temizleyip default başlık ekliyoruz.
+            dropdown.innerHTML = '<option value="">Önce Abone Seçiniz...</option>';
+
+            // Çekilen her aboneyi (a) döngüye sok
+            aboneler.forEach(a => {
+                // value="${a.id}": Form gönderilirken arka planda veritabanına Abone'nin ID numarası gidecek. (Çok Önemli!)
+                // Ekranda (kullanıcıya) ise TC, Ad ve Soyad görünecek.
+                dropdown.innerHTML += `<option value="${a.id}">${a.tcKimlik} - ${a.ad} ${a.soyad}</option>`;
+            });
+
+            // Kurulum tarihine varsayılan olarak "bugünün tarihini" (new Date) ekle.
+            document.getElementById('kurulumTarihi').valueAsDate = new Date();
+
+        } catch (error) {
+            console.error("Aboneler çekilemedi:", error);
+        }
+    }
+
+    // Sayfa açıldığında tabloyu otomatik doldur
+    sayaclariGetir();
+
+    /*
+     * FONKSİYON 3: FORMU GÖNDERMEK (POST)
+     * Yeni sayacı oluşturup C# API'sine yolladığımız ana işlem.
+     */
+    document.getElementById('formSayacEkle').addEventListener('submit', async function(e) {
+        e.preventDefault(); // Sayfanın yenilenmesini durdur.
+
+        const btnKaydet = document.getElementById('btnKaydet');
+        const alertBox = document.getElementById('modalAlert');
+
+        btnKaydet.disabled = true; // Butonu kilitle
+        btnKaydet.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Kaydediliyor...';
+        alertBox.classList.add('d-none'); // Hatayı gizle
+
+        /*
+         * VERİLERİ TOPLAMA VE DÖNÜŞTÜRME
+         * Formdaki verileri bir JS nesnesi yapıyoruz.
+         * DİKKAT: Dropdown'dan gelen value metin(string) olduğu için parseInt() ile Tamsayıya (int) çeviriyoruz.
+         * DİKKAT: Tarih verisini .toISOString() ile C#'ın (PostgreSQL'in) tam olarak istediği evrensel tarih saat standart formatına dönüştürüyoruz.
+         * (Daha önceki 'Bütün kutucukları doldurun' hatasını çözen altın vuruş buydu!)
+         */
+        const yeniSayac = {
+            aboneId: parseInt(document.getElementById('aboneId').value), // İnt'e çevrildi
+            sayacSeriNo: document.getElementById('sayacSeriNo').value,
+            sayacTipi: document.getElementById('sayacTipi').value,
+            kurulumTarihi: new Date(document.getElementById('kurulumTarihi').value).toISOString() // Format düzeltildi
+        };
+
+        try {
+            // API'ye POST isteği ile veriyi gönder
+            const response = await fetch('/api/Sayac', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(yeniSayac) // JS nesnesini JSON String'e çevirip gövdeye (body) koy.
+            });
+
+            if (response.ok) { // 200 Başarılı
+                // Modalı kapat
+                const modal = bootstrap.Modal.getInstance(document.getElementById('sayacEkleModal'));
+                modal.hide();
+                // Form kutularını temizle
+                document.getElementById('formSayacEkle').reset();
+                // Tabloyu yeniden çekerek eklenen sayacı göster
+                sayaclariGetir();
+            } else { // 400 Hata vb.
+                alertBox.innerText = "Lütfen tüm bilgileri eksiksiz girdiğinizden emin olun.";
+                alertBox.classList.remove('d-none');
+            }
+        } catch (error) { // Bağlantı koptu
+            alertBox.innerText = "Sunucuya bağlanılamadı.";
+            alertBox.classList.remove('d-none');
+        } finally { // Her halükarda çalışacak kod
+            btnKaydet.disabled = false; // Kilidi aç
+            btnKaydet.innerHTML = '<i class="bi bi-save me-1"></i> Sayacı Kaydet'; // Buton yazısını eski haline getir
+        }
+    });
+</script>
+</body>
+</html>

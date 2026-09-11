@@ -1,0 +1,113 @@
+﻿<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASKİ - Güvenli Ödeme Ekranı</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .payment-card { max-width: 500px; width: 100%; border-radius: 1rem; border: none; box-shadow: 0 1rem 3rem rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body>
+
+<div class="container p-3">
+    <div class="card payment-card mx-auto p-4 p-md-4 bg-white">
+        <div class="text-center mb-4">
+            <i class="bi bi-shield-lock-fill text-success fs-1"></i>
+            <h4 class="fw-bold mt-2">256-Bit SSL Güvenli Ödeme</h4>
+            <p class="text-muted small">ASKİ Fatura Tahsilat Sistemi</p>
+        </div>
+
+        <!-- Fatura Özet Kutusu -->
+        <div class="alert alert-light border mb-4">
+            <div class="d-flex justify-content-between mb-1">
+                <span class="text-muted">Fatura Dönemi:</span>
+                <strong id="lblDonem">-</strong>
+            </div>
+            <div class="d-flex justify-content-between">
+                <span class="text-muted">Ödenecek Tutar:</span>
+                <strong class="text-success fs-5" id="lblTutar">- TL</strong>
+            </div>
+        </div>
+
+        <!-- Kart Formu -->
+        <form id="odemeForm">
+            <div class="mb-3">
+                <label class="form-label small fw-semibold text-secondary">Kart Üzerindeki Ad Soyad</label>
+                <input type="text" class="form-control" required placeholder="Harun Melih Karakaş">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label small fw-semibold text-secondary">Kart Numarası</label>
+                <input type="text" class="form-control" maxlength="19" required placeholder="4532 •••• •••• 8901">
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label small fw-semibold text-secondary">Son Kullanma Tarihi</label>
+                    <input type="text" class="form-control" maxlength="5" required placeholder="AA/YY">
+                </div>
+                <div class="col-md-6 mb-4">
+                    <label class="form-label small fw-semibold text-secondary">CVV / CVC</label>
+                    <input type="password" class="form-control" maxlength="3" required placeholder="123">
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-success w-100 py-2 fw-bold shadow-sm" id="btnOnayla">
+                <i class="bi bi-lock-fill me-1"></i> Ödemeyi Onayla ve Bitir
+            </button>
+            <a href="vatandas.html" class="btn btn-outline-secondary w-100 mt-2 py-2 fw-semibold">Vazgeç / Geri Dön</a>
+        </form>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // URL'den ödenmek istenen faturanın ID'sini ve tutarını alıyoruz (Örn: odeme.html?id=3&tutar=450)
+    const urlParams = new URLSearchParams(window.location.search);
+    const faturaId = urlParams.get('id');
+    const donem = urlParams.get('donem');
+    const tutar = urlParams.get('tutar');
+
+    if(!faturaId) {
+        alert("Geçersiz işlem!");
+        window.location.href = "vatandas.html";
+    }
+
+    // Ekrana yazdır
+    document.getElementById('lblDonem').innerText = donem || "Güncel Dönem";
+    document.getElementById('lblTutar').innerText = tutar + " TL";
+
+    // Form gönderildiğinde gerçek ödeme isteğini Backend'e at
+    document.getElementById('odemeForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const btn = document.getElementById('btnOnayla');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>İşleniyor...';
+
+        try {
+            // C# API'mize PUT isteği atarak faturayı 'Ödendi' yapıyoruz
+            const response = await fetch(`/api/Tahakkuk/${faturaId}/ode`, {
+                method: 'PUT'
+            });
+
+            if(response.ok) {
+                alert("Ödemeniz başarıyla alınmıştır. Teşekkür ederiz.");
+                window.location.href = "vatandas.html"; // Vatandaş paneline geri dön
+            } else {
+                alert("Ödeme onaylanamadı, bir hata oluştu.");
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-lock-fill me-1"></i> Ödemeyi Onayla ve Bitir';
+            }
+        } catch (err) {
+            alert("Sunucuya bağlanılamadı.");
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-lock-fill me-1"></i> Ödemeyi Onayla ve Bitir';
+        }
+    });
+</script>
+</body>
+</html>

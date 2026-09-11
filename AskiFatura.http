@@ -1,0 +1,6 @@
+@AskiFatura_HostAddress = http://localhost:5197
+
+GET {{AskiFatura_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

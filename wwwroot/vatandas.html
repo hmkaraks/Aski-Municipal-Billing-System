@@ -1,0 +1,245 @@
+﻿<!DOCTYPE html>
+<!-- HTML5 standartlarına uygun, Türkçe dil destekli sayfamız -->
+<html lang="tr">
+<head>
+    <!-- Türkçe karakterlerin (ş, ğ, ç, ö vb.) bozuk çıkmaması için UTF-8 kodlaması -->
+    <meta charset="UTF-8">
+    <!-- Sayfanın tüm cihazlarda (mobil, tablet, PC) düzgün ölçeklenmesi için Responsive (Duyarlı) ayarı -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Tarayıcı sekmesinde görünen başlığımız -->
+    <title>ASKİ - Vatandaş Portalı</title>
+
+    <!-- BOOTSTRAP 5 CSS: Hazır butonlar, grid (ızgara) sistemi ve modern kartlar için kullandığımız kütüphane -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- BOOTSTRAP ICONS: Buton içindeki onay işareti, kredi kartı gibi vektörel ikonlar -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        /* ==========================================================
+           ÖZEL TASARIM (CSS) KODLARI
+           ========================================================== */
+
+        /* GÖVDE (BODY) - Sayfa Arka Planı ve Filigran İçin Hazırlık */
+        /* min-height: 100vh ile sayfa boşken bile logonun tam ortada kalmasını garantileriz */
+        body { background-color: #f4f6f9; position: relative; min-height: 100vh; }
+
+        /* ARKA PLAN SİLİK LOGO (WATERMARK) EFEKTİ */
+        /* Vatandaş giriş yaptığında da arkada o devasa kurumsal logoyu görecek */
+        body::before {
+            content: ""; /* Resim koyacağımız için içi boş bırakılır */
+            position: fixed; /* Ekran aşağı kaydırılsa bile logo sayfada sabit kalır (kaymaz) */
+            top: 0; left: 0; /* Ekranın sol üstünden başlatır */
+            width: 100vw; height: 100vh; /* Ekranın %100 genişlik ve yüksekliğini kaplar */
+            background-image: url('askilogo.png'); /* wwwroot içindeki ASKİ logomuz */
+            background-repeat: no-repeat; /* Logonun yan yana fayans gibi döşenmesini engeller */
+            background-position: center; /* Logoyu ekranın tam ortasına hizalar */
+            background-size: 450px; /* Logonun ekrandaki büyüklüğü (Ana panelden bir tık küçük tuttuk ferah olsun diye) */
+            opacity: 0.04; /* %4 opaklık. Neredeyse şeffaf, fatura kartlarının okunmasını asla engellemez. */
+            z-index: -1; /* -1 değeri ile her şeyin (kartlar, butonlar) en altında kalmasını sağlarız */
+            pointer-events: none; /* Logonun tıklamaları engellemesini önler */
+        }
+
+        /* Üst Menü (Navbar) Başlığı Tasarımı */
+        .navbar-brand { font-weight: 800; letter-spacing: -0.5px; }
+
+        /* FATURA KARTLARI TASARIMI */
+        .fatura-card {
+            border-left: 5px solid; /* Kartın sol tarafına kalın bir şerit çeker (Duruma göre kırmızı veya yeşil olacak) */
+            border-radius: 12px; /* Kartın köşelerini yuvarlatır */
+            transition: transform 0.2s; /* Fareyle üzerine gelinceki yukarı kalkma animasyonunun süresi */
+        }
+        /* Fare ile kartın üzerine gelindiğinde (Hover) */
+        .fatura-card:hover {
+            transform: translateY(-3px); /* Kartı 3 piksel yukarı kaldırır */
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05); /* Altına belirgin ama yumuşak bir gölge verir */
+        }
+
+        /* Kartın Durumuna Göre Renklendirme Sınıfları */
+        .border-odenmedi { border-color: #dc3545; } /* Fatura ödenmemişse sol şerit kırmızı (danger) olur */
+        .border-odendi { border-color: #198754; opacity: 0.7; } /* Ödenmişse sol şerit yeşil olur ve kart hafif soluklaşır (opacity) */
+    </style>
+</head>
+<body>
+
+<!-- ==========================================
+     ÜST MENÜ (NAVBAR)
+     Vatandaşın ismini ve çıkış butonunu barındıran üst çubuk
+     ========================================== -->
+<!-- navbar-dark bg-primary: Üst çubuğu ASKİ mavisi yapar ve içindeki yazıları beyaza çevirir -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+    <div class="container">
+
+        <!-- NAVBAR LOGO VE BAŞLIK -->
+        <!-- d-flex align-items-center: Logo ve yazının yan yana tam ortalı hizalanmasını sağlar -->
+        <a class="navbar-brand d-flex align-items-center" href="#">
+            <!-- İŞTE BURASI DÜZELTİLDİ: Eski dalga ikonu yerine logonuzu koyduk. Navbar çok şişmesin diye width: 45px yaptık. -->
+            <img src="askilogo.png" alt="ASKİ Logo" style="width: 45px; height: auto;" class="me-2">
+            ASKİ Online İşlemler
+        </a>
+
+        <!-- SAĞ TARAF: KULLANICI ADI VE ÇIKIŞ BUTONU -->
+        <div class="d-flex align-items-center">
+            <!-- JS'den gelen abone adı "aboneIsimAlan" id'li span'in içine yazılacak -->
+            <span class="text-white me-3 fw-semibold"><i class="bi bi-person-circle me-1"></i> Sayın <span id="aboneIsimAlan"></span></span>
+
+            <!-- Çıkış butonuna basıldığında JS'deki cikisYap() fonksiyonu tetiklenir -->
+            <button onclick="cikisYap()" class="btn btn-sm btn-outline-light"><i class="bi bi-box-arrow-right"></i> Çıkış</button>
+        </div>
+    </div>
+</nav>
+
+<!-- ==========================================
+     ANA İÇERİK (VATANDAŞIN FATURALARI)
+     ========================================== -->
+<div class="container my-5">
+
+    <!-- Başlık ve Açıklama -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h3 class="fw-bold text-dark">Faturalarım</h3>
+            <p class="text-muted">Aşağıdan güncel ve geçmiş su faturalarınızı görüntüleyip güvenli ödeme ekranına geçebilirsiniz.</p>
+        </div>
+    </div>
+
+    <!-- FATURALARIN YÜKLENECEĞİ KONTEYNER -->
+    <!-- JS kodumuz, API'den çektiği faturaları kart (div) haline getirip bu id'nin ("faturalarKonteyner") içine basacak -->
+    <div class="row" id="faturalarKonteyner">
+
+        <!-- FATURALAR YÜKLENİRKEN EKRANDA ÇIKACAK OLAN DÖNEN YÜKLENİYOR (SPINNER) ANİMASYONU -->
+        <div class="text-center py-5 text-muted" id="yukleniyorMetni">
+            <div class="spinner-border text-primary" role="status"></div>
+            <div class="mt-2">Fatura bilgileriniz sorgulanıyor...</div>
+        </div>
+
+    </div>
+</div>
+
+<!-- ==========================================
+     JAVASCRIPT (JS) KÜTÜPHANELERİ VE GÜVENLİK/MANTIK KODLARI
+     ========================================== -->
+<!-- Bootstrap JS dosyası -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    /* ==========================================
+       1. GÜVENLİK KONTROLÜ (FRONTEND AUTHENTICATION)
+       Amaç: Sisteme giriş yapmamış birinin tarayıcıya direkt "vatandas.html" yazarak girmesini engellemek!
+       ========================================== */
+    // index.html'de (Login ekranında) tarayıcının hafızasına (localStorage) kaydettiğimiz bilgileri okuyoruz.
+    const aboneId = localStorage.getItem('aktifAboneId');
+    const aboneAd = localStorage.getItem('aktifAboneAd');
+
+    // Eğer hafızada aboneId yoksa (Yani giriş yapmadan bu sayfaya gelmişse)
+    if(!aboneId) {
+        // Kullanıcıyı anında (sayfa yüklenmeden) login ekranına (index.html) geri fırlat!
+        window.location.href = "index.html";
+    }
+
+    // Güvenlik duvarını geçtiyse, hafızadaki adamın ismini üst menüdeki "Sayın ..." kısmına yaz.
+    document.getElementById('aboneIsimAlan').innerText = aboneAd;
+
+    /* ==========================================
+       2. KULLANICININ FATURALARINI ÇEK (FİLTRELEME MANTIĞI)
+       Amaç: Tüm faturaları çekip SADECE giriş yapan adama ait olanları ekranda göstermek.
+       ========================================== */
+    async function kullaniciFaturalariniGetir() {
+        try {
+            // 1. ADIM: Backend API'sinden sistemdeki TÜM faturaları çek.
+            const response = await fetch('/api/Tahakkuk');
+            const tumFaturalar = await response.json();
+
+            // 2. ADIM (GÜVENLİK FİLTRESİ): 
+            // .filter() komutu, listedeki elemanları bir şarta göre eler.
+            // Şartımız: Faturanın bağlı olduğu bir sayaç olsun VE o sayacın sahibi (aboneId), bizim sisteme giren adamın (aboneId) ID'sine eşit olsun!
+            // ÇOK ÖNEMLİ: "==" kullanıyoruz ki, biri Number biri String gelse bile değerleri eşleşsin.
+            const benimFaturalarim = tumFaturalar.filter(f => f.sayac && f.sayac.aboneId == aboneId);
+
+            // 3. ADIM: Yükleniyor metnini ekrandan kaldır.
+            const konteyner = document.getElementById('faturalarKonteyner');
+            konteyner.innerHTML = '';
+
+            // 4. ADIM: Eğer adamın hiç faturası yoksa ekrana mesaj bas ve fonksiyonu bitir (return).
+            if(benimFaturalarim.length === 0) {
+                konteyner.innerHTML = '<div class="alert alert-info border-0 shadow-sm">Üzerinize kayıtlı hiçbir fatura bulunmamaktadır. Tüm borçlarınız ödenmiştir.</div>';
+                return;
+            }
+
+            // 5. ADIM: Eğer adamın faturası varsa, her bir faturayı (f) döngüyle karta çevir.
+            benimFaturalarim.forEach(f => {
+
+                // TERNARY OPERATOR (if/else'in tek satırlık hali): 
+                // Eğer f.odendiMi true ise class 'border-odendi' olsun, false ise 'border-odenmedi' olsun.
+                let durumClass = f.odendiMi ? 'border-odendi bg-white' : 'border-odenmedi bg-white';
+
+                // Sağ üstteki rozetin (badge) durumunu belirle
+                let durumBadge = f.odendiMi
+                    ? '<span class="badge bg-success">ÖDENDİ</span>'
+                    : '<span class="badge bg-danger">ÖDENMEDİ (BORÇ)</span>';
+
+                // ==========================================
+                // YÖNLENDİRME (ROUTING) MANTIĞI
+                // Eğer fatura ödenmemişse, tıklandığında "odeme.html" sayfasına gider.
+                // Giderken URL'nin sonuna ?id=5&donem=2026-10&tutar=150.5 parametrelerini ekler ki, 
+                // ödeme sayfası "Hangi fatura için ne kadar para alacağını" anlasın!
+                // ==========================================
+                let butonHtml = '';
+                if(!f.odendiMi) {
+                    butonHtml = `<a href="odeme.html?id=${f.id}&donem=${f.faturaDonemi}&tutar=${f.faturaTutari}" class="btn btn-primary w-100 fw-bold shadow-sm text-decoration-none">
+                        <i class="bi bi-credit-card me-2"></i> ${f.faturaTutari} TL ÖDE
+                    </a>`;
+                } else {
+                    // Ödenmişse butonu kilitle (disabled) ve pasif yap
+                    butonHtml = `<button class="btn btn-outline-success w-100 fw-bold" disabled>
+                        <i class="bi bi-check2-all me-2"></i> Tahsil Edildi
+                    </button>`;
+                }
+
+                // KART HTML'İNİ KONTEYNER'A EKLE (+=)
+                konteyner.innerHTML += `
+                    <div class="col-md-6 col-lg-4 mb-4"> <!-- 12'lik gridde büyük ekranda 3'erli, orta ekranda 2'şerli dizer -->
+                        <div class="card fatura-card ${durumClass} shadow-sm h-100 p-3">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="text-muted fw-bold mb-0">DÖNEM: ${f.faturaDonemi}</h6>
+                                ${durumBadge}
+                            </div>
+                            <!-- Para miktarı büyük puntolarla yazılır -->
+                            <h3 class="fw-bold mb-1">${f.faturaTutari} <small class="fs-6 text-muted">TL</small></h3>
+                            <!-- Tüketim miktarı ve Sayacın Seri numarası küçük bilgi olarak basılır -->
+                            <p class="small text-muted mb-4">Tüketim: ${f.tuketimMiktari} m³ | Sayaç: ${f.sayac.sayacSeriNo}</p>
+                            
+                            <!-- mt-auto: Butonu kartın en altına, dibe yapıştırır -->
+                            <div class="mt-auto">
+                                ${butonHtml}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+        } catch (err) {
+            // Eğer veritabanına bağlanılamazsa hata bas.
+            console.error(err);
+            document.getElementById('faturalarKonteyner').innerHTML = '<div class="alert alert-danger shadow-sm border-0">Sisteme ulaşılamıyor. Lütfen daha sonra tekrar deneyiniz.</div>';
+        }
+    }
+
+    /* ==========================================
+       3. ÇIKIŞ YAP (LOGOUT) İŞLEMİ
+       ========================================== */
+    function cikisYap() {
+        // Tarayıcının hafızasındaki kimlik bilgilerini SİLİYORUZ.
+        // Bu sayede güvenlik duvarı yeniden devreye girecek.
+        localStorage.removeItem('aktifAboneId');
+        localStorage.removeItem('aktifAboneAd');
+
+        // Kullanıcıyı login ekranına (index.html) geri gönderiyoruz.
+        window.location.href = 'index.html';
+    }
+
+    // Sayfa açıldığı an "kullaniciFaturalariniGetir" fonksiyonunu tetikleyerek sistemi başlatıyoruz.
+    kullaniciFaturalariniGetir();
+
+</script>
+</body>
+</html>

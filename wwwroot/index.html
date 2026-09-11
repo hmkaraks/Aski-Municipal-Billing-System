@@ -1,0 +1,239 @@
+﻿<!DOCTYPE html>
+<!-- HTML5 standardını kullanıyoruz. Sayfa dili Türkçe (tr) -->
+<html lang="tr">
+<head>
+    <!-- Türkçe karakterlerin (ş, ğ, ç, ö vb.) bozulmadan görünmesini sağlayan karakter seti -->
+    <meta charset="UTF-8">
+    <!-- Sayfanın telefonlarda ve tabletlerde ekrana tam oturmasını sağlayan Responsive ayarı -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Tarayıcı sekmesinde görünen başlık -->
+    <title>ASKİ - Sisteme Giriş</title>
+
+    <!-- BOOTSTRAP 5 CSS: Hazır butonlar, kartlar, sekmeler (tabs) ve grid sistemi için kütüphane -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- BOOTSTRAP ICONS: Butonların içindeki küçük vektörel ikonlar (adam, kilit vb.) için kütüphane -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        /* ==========================================================
+           ÖZEL CSS (TASARIM) KODLARI
+           ========================================================== */
+
+        /* GÖVDE (BODY) - Modern Gradient Arka Plan */
+        body {
+            /* Arka plana çapraz (135 derece) açık maviden beyaza doğru yumuşak bir renk geçişi (gradient) verir */
+            background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
+            min-height: 100vh; /* Ekranın tüm yüksekliğini kaplar */
+            display: flex; /* İçindeki elemanları esnek kutu modeline sokar */
+            align-items: center; /* Kartı dikeyde tam ortaya hizalar */
+            justify-content: center; /* Kartı yatayda tam ortaya hizalar */
+        }
+
+        /* GİRİŞ KARTI - Cam (Glassmorphism) Efektli Kart Tasarımı */
+        .login-card {
+            background: rgba(255, 255, 255, 0.95); /* Arka planı %95 opak beyaz yapar (hafif saydam cam hissi) */
+            border-radius: 1.5rem; /* Köşeleri iyice yuvarlatır */
+            box-shadow: 0 1rem 3rem rgba(0,0,0,0.15); /* Kartın arkasına derinlik katan büyük ve yumuşak bir gölge verir */
+            overflow: hidden; /* Kartın dışına taşan şeyleri gizler */
+            max-width: 500px; /* Kartın genişliği en fazla 500 piksel olabilir (çok uzamasını engeller) */
+            width: 100%; /* Ekran küçülürse kendini %100'e ayarlayıp küçülür (Telefon uyumu) */
+            border: 1px solid rgba(255,255,255,0.5); /* Kartın etrafına çok ince, yarı saydam beyaz bir sınır (border) çeker */
+        }
+
+        /* ÖZEL SEKMELER (TABS - Vatandaş / Personel butonları) TASARIMI */
+        .nav-pills .nav-link {
+            border-radius: 0.5rem; /* Sekme butonlarının köşelerini yuvarlar */
+            color: #6c757d; /* Seçili olmayan sekmenin yazı rengi gri */
+            font-weight: 600; /* Yazı kalınlığı (Yarı kalın) */
+        }
+
+        /* Aktif (Tıklanmış) Sekmenin Tasarımı */
+        .nav-pills .nav-link.active {
+            background-color: #0d6efd; /* Arka planı parlak mavi yapar */
+            box-shadow: 0 4px 10px rgba(13, 110, 253, 0.3); /* Seçili butonun altına mavi bir parlama/gölge verir */
+        }
+
+        /* GİRİŞ KUTULARI (Input Alanları) TASARIMI */
+        .form-control { border-radius: 0.5rem; padding: 0.75rem 1rem; } /* Kutuların iç boşluklarını ve köşelerini ayarlar */
+        .form-control:focus { box-shadow: 0 0 0 3px rgba(13,110,253,0.15); } /* Kutuya tıklandığında (focus) etrafında mavi bir hale/ışık yanmasını sağlar */
+    </style>
+</head>
+<body>
+
+<!-- Kapsayıcı Konteyner: Ekran çok küçülürse kart kenarlara yapışmasın diye p-3 (padding) boşluğu verir -->
+<div class="container p-3">
+    <!-- Ana Giriş Kartımız -->
+    <div class="login-card mx-auto p-4 p-md-5">
+
+        <!-- LOGO VE BAŞLIK KISMI -->
+        <div class="text-center mb-4">
+            <!-- DÜZELTME BURADA: Eski dalga (bi-water) ikonu silindi, yerine orijinal kurumsal logomuz şık bir boyutta eklendi! -->
+            <img src="askilogo.png" alt="ASKİ Logo" style="width: 80px; height: auto;" class="mb-3">
+
+            <h3 class="fw-bold text-dark mt-2">ASKİ Dijital İşlem Merkezi</h3>
+            <p class="text-muted small">Lütfen giriş yapmak istediğiniz portalı seçin</p>
+        </div>
+
+        <!-- ==========================================
+             GİRİŞ SEKMELERİ (TABS)
+             Vatandaş ve Personel arasında geçiş yapmayı sağlayan düğmeler
+             ========================================== -->
+        <!-- nav-justified: Butonların genişliklerini eşit olarak bölüştürür (Yarı yarıya) -->
+        <ul class="nav nav-pills nav-justified mb-4" id="loginTabs" role="tablist">
+
+            <!-- 1. VATANDAŞ SEKMESİ (Varsayılan olarak "active" yani seçili gelir) -->
+            <li class="nav-item" role="presentation">
+                <!-- data-bs-toggle="pill": Bootstrap'e bunun bir geçiş sekmesi olduğunu söyler -->
+                <!-- data-bs-target="#vatandas": Tıklanınca aşağıda ID'si "vatandas" olan div'i gösterir -->
+                <button class="nav-link active" id="vatandas-tab" data-bs-toggle="pill" data-bs-target="#vatandas" type="button">
+                    <i class="bi bi-person me-1"></i> Vatandaş
+                </button>
+            </li>
+
+            <!-- 2. PERSONEL SEKMESİ -->
+            <li class="nav-item" role="presentation">
+                <!-- data-bs-target="#kurum": Tıklanınca aşağıda ID'si "kurum" olan div'i gösterir -->
+                <button class="nav-link" id="kurum-tab" data-bs-toggle="pill" data-bs-target="#kurum" type="button">
+                    <i class="bi bi-shield-lock me-1"></i> Personel
+                </button>
+            </li>
+
+        </ul>
+
+        <!-- ==========================================
+             SEKMELERİN İÇERİĞİ (Giriş Formları)
+             ========================================== -->
+        <div class="tab-content" id="loginTabsContent">
+
+            <!-- 1. VATANDAŞ GİRİŞ FORMU KUTUSU -->
+            <!-- show active: Sayfa ilk açıldığında ekranda bu form görünür -->
+            <div class="tab-pane fade show active" id="vatandas">
+                <form id="vatandasForm">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-secondary small">TC Kimlik Numarası</label>
+                        <!-- maxlength="11": Tarayıcının 11'den fazla karakter yazılmasını engellemesini sağlar -->
+                        <input type="text" class="form-control bg-light" id="vatandasTc" maxlength="11" required placeholder="11 Haneli TC Kimlik Numaranız">
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold text-secondary small">Abone Numarası (ID)</label>
+                        <input type="number" class="form-control bg-light" id="vatandasAboneNo" required placeholder="Örn: 5">
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 py-2 fw-bold" id="btnVatandas">
+                        Fatura Sorgula / Öde <i class="bi bi-arrow-right ms-1"></i>
+                    </button>
+                </form>
+            </div>
+
+            <!-- 2. KURUMSAL (PERSONEL/ADMİN) GİRİŞ FORMU KUTUSU -->
+            <!-- Başlangıçta "active" class'ı olmadığı için vatandaşa tıklanana kadar gizli kalır (fade) -->
+            <div class="tab-pane fade" id="kurum">
+                <form id="kurumForm">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-secondary small">Sicil No veya Kullanıcı Adı</label>
+                        <input type="text" class="form-control bg-light" id="adminUser" required placeholder="admin">
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold text-secondary small">Sistem Şifresi</label>
+                        <!-- type="password": Yazılan karakterleri yıldız/nokta şeklinde gizler (Güvenlik) -->
+                        <input type="password" class="form-control bg-light" id="adminPass" required placeholder="••••••••">
+                    </div>
+                    <button type="submit" class="btn btn-dark w-100 py-2 fw-bold">
+                        Yönetim Paneline Gir <i class="bi bi-box-arrow-in-right ms-1"></i>
+                    </button>
+                </form>
+            </div>
+
+        </div>
+
+        <!-- ORTAK HATA KUTUSU: Şifre yanlış girildiğinde JS tarafından görünür yapılır (d-none sınıfı kaldırılarak) -->
+        <div id="loginError" class="alert alert-danger mt-4 d-none text-center small fw-semibold" role="alert"></div>
+
+    </div>
+</div>
+
+<!-- ==========================================
+     JAVASCRIPT KÜTÜPHANELERİ VE GİRİŞ KONTROL KODLARI
+     ========================================== -->
+<!-- Sekmelerin arası geçiş animasyonlarını sağlayan Bootstrap JS dosyası -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // Hata mesajını ekrana basacağımız kutuyu seçiyoruz.
+    const errorBox = document.getElementById('loginError');
+
+    /* ==========================================
+       VATANDAŞ GİRİŞİ KONTROLÜ (API İLE GERÇEK DOĞRULAMA) 
+       ========================================== */
+    document.getElementById('vatandasForm').addEventListener('submit', async function(e) {
+        e.preventDefault(); // Formun sayfayı yenilemesini engeller.
+
+        const btn = document.getElementById('btnVatandas');
+        btn.innerHTML = 'Sorgulanıyor...'; // Buton yazısını değiştirip kullanıcıya işlem yapıldığını hissettiriyoruz.
+        btn.disabled = true; // Butonu ard arda tıklanmasın diye kilitliyoruz.
+        errorBox.classList.add('d-none'); // Eski hata mesajlarını gizliyoruz.
+
+        // Kullanıcının kutulara yazdığı bilgileri değişkenlere alıyoruz.
+        const girilenTc = document.getElementById('vatandasTc').value;
+        const girilenAboneNo = parseInt(document.getElementById('vatandasAboneNo').value);
+
+        try {
+            // 1. ADIM: Backend'deki Abone API'mize istek atıp sistemdeki tüm aboneleri (Veritabanını) çekiyoruz.
+            const response = await fetch('/api/Abone');
+            const aboneler = await response.json();
+
+            // 2. ADIM: Girdiği TC ve Abone ID sistemde eşleşiyor mu diye kontrol et (Frontend Authentication Hack)
+            // .find() komutu: Listeyi tek tek gezer, aradığımız şartları sağlayan ilk kişiyi bulup 'gercekVatandas' değişkenine atar.
+            const gercekVatandas = aboneler.find(a => a.tcKimlik === girilenTc && a.id === girilenAboneNo);
+
+            if(gercekVatandas) {
+                // EŞLEŞME BAŞARILIYSA (Kullanıcı bulunduysa):
+
+                // MUAZZAM SİHİR BURADA: localStorage (Tarayıcının geçici hafızası).
+                // Bir sonraki sayfa (vatandas.html) açıldığında "Bu adam kim?" dememesi için 
+                // Adamın ID'sini ve İsm-Soyismini tarayıcı hafızasına yazıyoruz. 
+                // Vatandaş sayfası açılınca bu hafızayı okuyup, ekrana sadece o adamın faturalarını basacak!
+                localStorage.setItem('aktifAboneId', gercekVatandas.id);
+                localStorage.setItem('aktifAboneAd', `${gercekVatandas.ad} ${gercekVatandas.soyad}`);
+
+                // Sayfayı, vatandaş portaline yönlendir (Geçiş yap)
+                window.location.href = "vatandas.html";
+            } else {
+                // Eğer öyle bir adam yoksa hata mesajı göster
+                errorBox.innerText = "TC Kimlik No ile Abone No eşleşmedi veya sistemde yok!";
+                errorBox.classList.remove('d-none');
+            }
+        } catch (err) {
+            // C# Sunucusu kapalıysa düşülecek hata
+            errorBox.innerText = "Sunucuya bağlanılamadı.";
+            errorBox.classList.remove('d-none');
+        } finally {
+            // İşlem bitince (başarılı veya başarısız) butonu eski haline getir
+            btn.innerHTML = 'Fatura Sorgula / Öde <i class="bi bi-arrow-right ms-1"></i>';
+            btn.disabled = false;
+        }
+    });
+
+    /* ==========================================
+       PERSONEL (ADMİN) GİRİŞ KONTROLÜ
+       ========================================== */
+    document.getElementById('kurumForm').addEventListener('submit', function(e) {
+        e.preventDefault(); // Sayfa yenilemesini durdur.
+        errorBox.classList.add('d-none'); // Varsa önceki hataları gizle.
+
+        const user = document.getElementById('adminUser').value;
+        const pass = document.getElementById('adminPass').value;
+
+        // Şimdilik Admin girişi sabit bilgilerle (Hardcoded) korunuyor.
+        if(user === "admin" && pass === "aski2026") {
+            // Bilgiler doğruysa doğrudan Dashboard'a (Yönetim Paneline) yönlendir.
+            window.location.href = "dashboard.html";
+        } else {
+            // Yanlışsa hata bas
+            errorBox.innerText = "Personel sicil no veya şifre hatalı!";
+            errorBox.classList.remove('d-none');
+        }
+    });
+</script>
+</body>
+</html>

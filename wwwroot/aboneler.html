@@ -1,0 +1,399 @@
+﻿<!DOCTYPE html>
+<!-- HTML5 standardını kullandığımızı belirtir -->
+<html lang="tr">
+<!-- Sayfanın dilinin Türkçe olduğunu belirtir. Tarayıcılar (Chrome vb.) çeviri yaparken bunu dikkate alır -->
+<head>
+    <!-- Sayfadaki karakterlerin (Türkçe ş, ğ, ü, ö vb.) bozuk çıkmaması için UTF-8 kodlamasını kullanıyoruz -->
+    <meta charset="UTF-8">
+    <!-- Sayfanın telefonlarda ve tabletlerde ekrana tam oturmasını, yakınlaştırma (zoom) sorunu olmamasını sağlar (Responsive tasarımın kalbi) -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Tarayıcı sekmesinde (yukarıda) yazacak olan başlık -->
+    <title>ASKİ Fatura - Abone İşlemleri</title>
+
+    <!-- BOOTSTRAP 5 CSS KÜTÜPHANESİ: 
+         Kendi başımıza binlerce satır CSS (tasarım) kodu yazmak yerine, dünyanın en popüler tasarım kütüphanesi olan Bootstrap'i internetten çekiyoruz. 
+         Bu sayede "btn-primary" yazdığımızda otomatik olarak mavi, köşeleri yuvarlak, şık bir buton elde ediyoruz. -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- BOOTSTRAP ICONS: 
+         Ekranda gördüğün adam, artı işareti, fiş, damla gibi ikonları klasörde resim olarak tutmak yerine bu kütüphaneden yazı tipi (font) gibi çekiyoruz. -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        /* ==========================================================
+           ÖZEL CSS (TASARIM) KODLARIMIZ
+           Bootstrap'in yetmediği veya kendimize has yapmak istediğimiz tasarımları buraya yazarız.
+           ========================================================== */
+
+        /* GENEL SAYFA (BODY) AYARLARI */
+        /* overflow-x: hidden -> Ekranda sağa sola kayma (yatay scroll) olmasını kesinlikle engeller. 
+           position: relative -> Arka plana ekleyeceğimiz logonun sayfa sınırları içinde kalmasına yardımcı olur. */
+        body { background-color: #f8f9fa; overflow-x: hidden; position: relative; }
+
+        /* ARKA PLAN SİLİK LOGO (WATERMARK) EFEKTİ */
+        /* body::before -> Sayfanın var olan içeriğinin "altına/arkasına" sanal bir katman açar. */
+        body::before {
+            content: ""; /* İçine yazı yazmıyoruz, sadece resim koyacağız */
+            position: fixed; /* Ekranı aşağı kaydırsan bile logo hep aynı yerde sabit kalır */
+            top: 0; left: 0; /* Ekranın sol üst köşesine yapıştırıyoruz */
+            width: 100vw; height: 100vh; /* vh ve vw ekranın yüzde yüzünü (Genişlik ve Yükseklik) kapla demektir */
+            background-image: url('askilogo.png'); /* wwwroot içindeki kendi logomuzu çağırıyoruz */
+            background-repeat: no-repeat; /* Logo ekranı fayans gibi kaplamasın, 1 tane olsun */
+            background-position: center; /* Logoyu ekranın tam ortasına hizala */
+            background-size: 500px; /* Logonun büyüklüğü (genişliği) 500 piksel olsun */
+            opacity: 0.04; /* %4 opaklık. Yani %96 şeffaf! Bu sayede çok silik, zarif bir görüntü elde ederiz. */
+            z-index: -1; /* Z-ekseninde (derinlik) en arkaya atar. Yazıların ve tabloların altında kalır. */
+            pointer-events: none; /* Fareyle üzerine tıklandığında logoyu değil, altındaki tabloyu/butonu seçmemizi sağlar. */
+        }
+
+        /* SOL YAN MENÜ (SIDEBAR) KUTUSU */
+        #sidebar {
+            min-width: 280px; max-width: 280px; /* Menünün genişliği ekran büyüse de küçülse de tam 280 piksel kalsın */
+            min-height: 100vh; /* Menü, ekranın en altından en üstüne kadar (100vh) uzansın */
+            background-color: #212529; /* Arka planı antrasit/koyu gri renk (Hex kodu) */
+            color: white; /* İçindeki genel yazılar beyaz olsun */
+            transition: all 0.3s; /* Üzerine gelindiğinde veya bir şey değiştiğinde 0.3 saniyede yumuşak geçiş yap */
+        }
+
+        /* YAN MENÜDEKİ LİNKLER (Menü Butonları) */
+        #sidebar .nav-link {
+            color: #adb5bd; /* Aktif olmayan linklerin rengi soluk gri olsun */
+            padding: 12px 20px; /* İçindeki yazı ile kenarları arasındaki boşluk (İç Zırh) */
+            border-radius: 8px; /* Köşelerini hafifçe yuvarlat */
+            margin: 4px 15px; /* Diğer butonlarla arasına mesafe (Dış Boşluk) koy */
+            font-weight: 500; /* Yazı kalınlığı normalden bir tık kalın olsun */
+        }
+
+        /* LİNKİN ÜZERİNE GELİNDİĞİNDE (hover) VE TIKLANIP AKTİF OLDUĞUNDA (active) */
+        #sidebar .nav-link:hover, #sidebar .nav-link.active {
+            background-color: #0d6efd; /* Arka planı Bootstrap'in efsanevi parlak mavi rengi yap */
+            color: white; /* Yazıyı tam beyaz yap */
+        }
+
+        /* LİNKLERİN İÇİNDEKİ İKONLAR (i etiketleri) */
+        #sidebar .nav-link i { margin-right: 10px; font-size: 1.1rem; } /* İkon ile yazı arasına 10px boşluk koy ve ikonu biraz büyüt */
+
+        /* SAĞ TARAFTAKİ ANA İÇERİK ALANI (Tablonun olduğu yer) */
+        #content { width: 100%; } /* Geriye kalan tüm genişliği kapla */
+
+        /* ÜST BİLGİ ÇUBUĞU (Topbar) */
+        /* box-shadow: Çubuğun altına çok hafif, zarif bir gölge (3 boyut hissi) verir */
+        .topbar { background-color: white; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+    </style>
+</head>
+
+<!-- Sayfa Gövdesi. "d-flex" Bootstrap sınıfıdır. İçindeki elemanları (Sol menü ve Sağ içerik) yan yana dizer. -->
+<body class="d-flex">
+
+<!-- ==========================================
+     1. SOL YAN MENÜ (SIDEBAR) HTML YAPISI
+     ========================================== -->
+<!-- nav: Yönlendirme menülerini sarmalayan semantik (anlamlı) HTML etiketidir -->
+<nav id="sidebar" class="d-flex flex-column shadow">
+
+    <!-- LOGO VE BAŞLIK KISMI -->
+    <!-- p-4: padding 4 birim, text-center: yazıyı ortala, border-bottom: altına çizgi çek -->
+    <div class="p-4 text-center border-bottom border-secondary mb-3">
+        <!-- İŞTE BURASI DÜZELTİLDİ: Artık klasik ikon yerine bizim orijinal askilogo.png dosyamız var! -->
+        <img src="askilogo.png" alt="ASKİ Logo" style="width: 85px; height: auto;" class="mb-2">
+        <h5 class="mt-2 fw-bold text-white">ASKİ Yönetim</h5>
+    </div>
+
+    <!-- MENÜ LİNKLERİ (LİSTE) -->
+    <!-- flex-column: Linkleri alt alta dizer, mb-auto: Menünün altındaki boşluğu otomatik doldurur ki Çıkış butonu en alta itilsin -->
+    <ul class="nav flex-column mb-auto">
+        <li class="nav-item">
+            <a href="dashboard.html" class="nav-link">
+                <i class="bi bi-grid-1x2-fill"></i> Ana Panel
+            </a>
+        </li>
+        <li class="nav-item">
+            <!-- DİKKAT: Biz şu an Abone sayfasında olduğumuz için bu a etiketinde "active" class'ı var. Mavi yanan budur! -->
+            <a href="aboneler.html" class="nav-link active">
+                <i class="bi bi-people-fill"></i> Abone İşlemleri
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="sayaclar.html" class="nav-link">
+                <i class="bi bi-speedometer"></i> Sayaç Yönetimi
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="faturalar.html" class="nav-link">
+                <i class="bi bi-receipt"></i> Fatura & Tahakkuk
+            </a>
+        </li>
+    </ul>
+
+    <!-- ÇIKIŞ YAP BUTONU (En altta) -->
+    <div class="p-3 mt-auto border-top border-secondary">
+        <a href="index.html" class="nav-link text-danger"> <!-- text-danger: Yazıyı tehlike rengi olan kırmızı yapar -->
+            <i class="bi bi-box-arrow-left"></i> Çıkış Yap
+        </a>
+    </div>
+</nav>
+
+
+<!-- ==========================================
+     2. SAĞ ANA İÇERİK (CONTENT) HTML YAPISI
+     ========================================== -->
+<div id="content">
+
+    <!-- ÜST BAR (Başlık ve Yeni Abone Ekle Butonu) -->
+    <div class="topbar p-3 d-flex justify-content-between align-items-center mb-4">
+        <h4 class="m-0 fw-bold text-secondary">Abone İşlemleri</h4>
+        <div class="d-flex align-items-center">
+
+            <!-- YENİ ABONE EKLE BUTONU -->
+            <!-- DİKKAT BÜYÜK SİHİR BURADA: 
+                 data-bs-toggle="modal": Bootstrap'a "Bu butona basılınca bir Popup/Modal aç" emri verir.
+                 data-bs-target="#aboneEkleModal": "Hangi modalı açayım?" sorusuna "Aşağıda ID'si aboneEkleModal olanı aç" der. -->
+            <button class="btn btn-primary fw-semibold" data-bs-toggle="modal" data-bs-target="#aboneEkleModal">
+                <i class="bi bi-person-plus-fill me-1"></i> Yeni Abone Ekle
+            </button>
+
+        </div>
+    </div>
+
+    <!-- ABONE LİSTESİ TABLOSU -->
+    <!-- px-4: Sağdan ve soldan boşluk bırakır. -->
+    <div class="container-fluid px-4">
+        <!-- card: İçine koyduğumuz şeyleri şık bir beyaz kutuya alır -->
+        <div class="card border-0 shadow-sm rounded-3">
+            <div class="card-header bg-white py-3">
+                <h6 class="mb-0 fw-bold text-primary"><i class="bi bi-list-ul me-2"></i>Sistemdeki Kayıtlı Aboneler</h6>
+            </div>
+
+            <div class="card-body p-0"> <!-- p-0: Kart gövdesindeki iç boşlukları sıfırlar ki tablo tam sınırlara yapışsın -->
+                <div class="table-responsive"> <!-- Eğer ekran küçülürse tablonun sayfa dışına taşmasını engeller, sağa sola kaydırma barı çıkartır -->
+                    <!-- table-hover: Fareyle satırın üstüne gelince satırı hafif gri yaparak parlatır -->
+                    <table class="table table-hover align-middle mb-0">
+
+                        <!-- TABLO BAŞLIKLARI (Thead) -->
+                        <thead class="table-light"> <!-- Başlık arka planı çok hafif gri -->
+                        <tr>
+                            <th class="ps-4">ID</th> <!-- ps-4: İlk sütun yazısı sola çok yapışmasın diye boşluk -->
+                            <th>TC Kimlik No</th>
+                            <th>Ad Soyad</th>
+                            <th>Adres</th>
+                            <th>Telefon</th>
+                        </tr>
+                        </thead>
+
+                        <!-- TABLO İÇERİĞİ (Tbody) -->
+                        <!-- ID çok önemli! JavaScript verileri C#'tan çekince, gelip bu 'aboneTableBody' ID'sini bulacak ve verileri buraya basacak. -->
+                        <tbody id="aboneTableBody">
+                        <!-- Veriler gelene kadar ekranda görünecek geçici yazı -->
+                        <tr><td colspan="5" class="text-center py-4 text-muted">Veriler yükleniyor...</td></tr>
+                        </tbody>
+
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ==========================================
+     3. MODAL (GİZLİ POPUP EKRANI - YENİ ABONE KAYDI)
+     Kullanıcı "Yeni Abone Ekle" butonuna basmadan burası ekranda görünmez.
+     ========================================== -->
+<!-- fade: Modalin ekrana pat diye değil, yavaşça (animasyonlu) gelmesini sağlar -->
+<div class="modal fade" id="aboneEkleModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered"> <!-- modal-dialog-centered: Pencereyi ekranın tam ortasına (yukarıdan ve aşağıdan) ortalar -->
+        <div class="modal-content border-0 shadow"> <!-- Popup kutusunun kendisi -->
+
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title fw-bold"><i class="bi bi-person-plus me-2"></i>Yeni Abone Kaydı</h5>
+                <!-- btn-close: Sağ üstteki "X" kapatma butonudur -->
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <!-- FORM BAŞLANGICI: Kullanıcının bilgi girdiği tüm kutuları kapsar -->
+            <form id="formAboneEkle">
+                <div class="modal-body p-4">
+
+                    <!-- HATA MESAJI KUTUSU: Başlangıçta "d-none" (display: none) sınıfı ile gizlidir. Hata olunca JS bunu görünür yapar. -->
+                    <div id="modalAlert" class="alert alert-danger d-none small" role="alert"></div>
+
+                    <!-- TC KİMLİK INPUTU -->
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-secondary">TC Kimlik Numarası *</label>
+                        <!-- maxlength="11": Tarayıcının 11 karakterden fazla yazılmasını engellemesini sağlar. 
+                             required: Bu kutu boş bırakılırsa formun gönderilmesine izin vermez! -->
+                        <input type="text" class="form-control" id="tcKimlik" maxlength="11" required placeholder="11 Haneli TC Kimlik">
+                    </div>
+
+                    <!-- AD VE SOYAD INPUTLARI (Yan Yana) -->
+                    <div class="row"> <!-- row: Ekranı yatayda parçalara bölmek için kullanılır -->
+                        <div class="col-md-6 mb-3"> <!-- col-md-6: Ekranın yarısını (6/12) kaplar. Ad ve Soyad yan yana gelir. -->
+                            <label class="form-label fw-semibold text-secondary">Ad *</label>
+                            <input type="text" class="form-control" id="ad" required placeholder="Abone Adı">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold text-secondary">Soyad *</label>
+                            <input type="text" class="form-control" id="soyad" required placeholder="Abone Soyadı">
+                        </div>
+                    </div>
+
+                    <!-- TELEFON INPUTU -->
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-secondary">Telefon</label>
+                        <input type="text" class="form-control" id="telefon" placeholder="0555 555 55 55">
+                    </div>
+
+                    <!-- ADRES INPUTU (Geniş Metin Alanı) -->
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-secondary">Açık Adres</label>
+                        <!-- textarea: Kullanıcının çok satırlı (uzun) yazılar yazabilmesini sağlayan özel bir HTML etiketidir -->
+                        <textarea class="form-control" id="adres" rows="2" placeholder="Mahalle, Sokak, No..."></textarea>
+                    </div>
+
+                </div>
+
+                <!-- FORMUN ALT BUTONLARI -->
+                <div class="modal-footer bg-light">
+                    <!-- type="button": Sadece tıklanabilir bir butondur, formu onaylamaz. Modalı kapatır. -->
+                    <button type="button" class="btn btn-secondary fw-semibold" data-bs-dismiss="modal">İptal</button>
+                    <!-- type="submit": Formun içindeki tüm verileri toplar ve JavaScript'teki "submit" olayını tetikler! -->
+                    <button type="submit" class="btn btn-primary fw-bold" id="btnKaydet">
+                        <i class="bi bi-save me-1"></i> Kaydet
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<!-- ==========================================
+     4. JAVASCRIPT KÜTÜPHANELERİ VE KODLARI
+     Sayfanın beyni. Butonlara can veren, verileri çekip gösteren kısımdır.
+     ========================================== -->
+
+<!-- Bootstrap'in açılır pencerelerinin (Modalların) çalışması için gereken JS kütüphanesi -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    /*
+     * FONKSİYON 1: ABONELERİ GETİR (GET ISTEĞİ)
+     * Amacı: C# Backend (AboneController) ile konuşup veritabanındaki tüm aboneleri listelemek.
+     * Neden async? Çünkü veritabanına gidip gelmek zaman alır. JavaScript ekranı dondurmamak için bunu "arka planda" yapar.
+     */
+    async function aboneleriGetir() {
+        try { // "try": Bu kodları çalıştırmayı dene. Eğer sunucu kapalıysa patlama, "catch" bloğuna atla.
+
+            // fetch(): HTTP isteği atan ana komuttur. Varsayılan olarak GET (Veri Getirme) işlemi yapar.
+            // await: "Bu işlem bitene kadar alt satıra geçme, bekle" demektir.
+            const response = await fetch('/api/Abone');
+
+            // response.json(): Gelen şifreli/karışık metni JavaScript'in anlayabileceği Dizi/Nesne (Array/Object) formatına çevirir.
+            const aboneler = await response.json();
+
+            // HTML içindeki <tbody id="aboneTableBody"> kısmını bul ve bir değişkene ata.
+            let tbody = document.getElementById('aboneTableBody');
+            tbody.innerHTML = ''; // İçindeki "Veriler yükleniyor..." yazısını temizler.
+
+            // Eğer veritabanından gelen listede eleman yoksa:
+            if(aboneler.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted">Henüz kayıtlı abone bulunmamaktadır.</td></tr>';
+                return; // Listede adam yoksa, fonksiyonu burada bitir, aşağı gitme.
+            }
+
+            // forEach: "aboneler" listesindeki HER BİR abone (a) için aşağıdaki döngüyü çalıştır.
+            aboneler.forEach(a => {
+                // innerHTML += : "Tbody'nin içindeki eski yazıları silme, üzerine bu yeni HTML satırını Ekle" demektir.
+                // ` (Backtick) karakterleri: İçinde ${a.id} gibi JavaScript değişkenlerini HTML arasına yazabilmemizi sağlar (Template Literal).
+                tbody.innerHTML += `
+                        <tr>
+                            <td class="ps-4 fw-bold text-secondary">#${a.id}</td>
+                            <td><span class="badge bg-light text-dark border">${a.tcKimlik}</span></td>
+                            <td class="fw-semibold text-primary">${a.ad} ${a.soyad}</td>
+                            <!-- ${a.adres || '-'} demek: Eğer adamın adresi boşsa ekrana çizgi (-) bas demektir. -->
+                            <td><small class="text-muted">${a.adres || '-'}</small></td>
+                            <td>${a.telefon || '-'}</td>
+                        </tr>
+                    `;
+            });
+        } catch (error) {
+            // Eğer C# sunucusu çöktüyse veya internet koptuysa kod buraya düşer. Tarayıcı konsoluna hatayı yazar.
+            console.error("Aboneler çekilemedi:", error);
+        }
+    }
+
+    // Fonksiyon tanımlandı, şimdi sayfa açılır açılmaz ilk iş bu fonksiyonu çalıştırıyoruz.
+    aboneleriGetir();
+
+
+    /*
+     * FONKSİYON 2: YENİ ABONE FORMU GÖNDERİLDİĞİNDE (POST ISTEĞİ)
+     * Amacı: Kullanıcı formu doldurup "Kaydet" butonuna (type="submit") bastığında araya girmek.
+     */
+    // document.getElementById('formAboneEkle').addEventListener('submit', ...): Form gönderildiği anı yakalar.
+    document.getElementById('formAboneEkle').addEventListener('submit', async function(e) {
+
+        // ÇOK ÖNEMLİ: e.preventDefault() -> Formların varsayılan huyu, butona basılınca sayfayı tamamen yenilemektir. 
+        // Bu komut "Sayfayı asla yenileme, kontrol benim elimde" der. (SPA - Single Page Application mantığı)
+        e.preventDefault();
+
+        const btnKaydet = document.getElementById('btnKaydet');
+        const alertBox = document.getElementById('modalAlert');
+
+        // Kullanıcı 5 kere art arda tıklayıp aynı adamı 5 kere eklemesin diye butonu pasif (disabled) yapıyoruz.
+        btnKaydet.disabled = true;
+        btnKaydet.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Bekleyin...';
+
+        // Varsa eski hata mesajını gizliyoruz.
+        alertBox.classList.add('d-none');
+
+        // Kullanıcının Input kutularına yazdığı değerleri (.value) alıp, C#'ın beklediği "Abone" modeline uygun bir Nesne (Object) yaratıyoruz.
+        const yeniAbone = {
+            tcKimlik: document.getElementById('tcKimlik').value,
+            ad: document.getElementById('ad').value,
+            soyad: document.getElementById('soyad').value,
+            telefon: document.getElementById('telefon').value,
+            adres: document.getElementById('adres').value
+        };
+
+        try {
+            // fetch() komutunu bu sefer Veri Göndermek (POST) için kullanıyoruz.
+            const response = await fetch('/api/Abone', {
+                method: 'POST', // İşlem Tipi: POST (Yeni kayıt ekle)
+                headers: { 'Content-Type': 'application/json' }, // Sunucuya "Sana JSON formatında bir veri yolluyorum, haberin olsun" der.
+                body: JSON.stringify(yeniAbone) // Bizim JavaScript nesnemizi, internetten gidebilecek Metin (JSON String) haline çevirir.
+            });
+
+            if (response.ok) {
+                // response.ok = Sunucudan 200 OK (İşlem Başarılı) cevabı geldiyse:
+
+                // 1. Ekranda açık olan Popup Modalı kapat.
+                const modal = bootstrap.Modal.getInstance(document.getElementById('aboneEkleModal'));
+                modal.hide();
+
+                // 2. Formun içindeki Inputları (yazıları) sıfırla (Temizle).
+                document.getElementById('formAboneEkle').reset();
+
+                // 3. Tabloyu yenile ki yeni eklediğimiz adamı listede görebilelim.
+                aboneleriGetir();
+            } else {
+                // response.ok değilse (Örn: C# TC'nin 11 haneli olmadığını fark edip 400 Bad Request fırlattıysa)
+                const hata = await response.text(); // C#'tan gelen hata mesajını oku
+                alertBox.innerText = "Hata oluştu: Lütfen bilgileri kontrol edin. (TC Kimlik 11 hane ve rakam olmalı)";
+                alertBox.classList.remove('d-none'); // Hata kutusunu görünür yap.
+            }
+        } catch (error) {
+            // İnternet koptuysa veya API kapalıysa...
+            alertBox.innerText = "Sunucuya bağlanılamadı.";
+            alertBox.classList.remove('d-none');
+        } finally {
+            // finally bloğu: Hata da olsa, başarılı da olsa EN SON çalışacak koddur.
+            // Butonu tekrar tıklanabilir (eski haline) getirir.
+            btnKaydet.disabled = false;
+            btnKaydet.innerHTML = '<i class="bi bi-save me-1"></i> Kaydet';
+        }
+    });
+</script>
+</body>
+</html>
